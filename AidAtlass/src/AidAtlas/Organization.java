@@ -1,6 +1,5 @@
 package AidAtlas;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,28 +7,20 @@ import java.util.Scanner;
 
 public class Organization extends User implements CreateProfile, EditProfile, ViewProfile {
 
-    private String organizationName;
     private String mission;
     private String location;
-    private List<String> volunteerOpportunities; // List of volunteer opportunities available
+    private List<VolunteerOpportunities> volunteerOpportunities; // List of volunteer opportunities available
     private List<Volunteer> volunteers; // List of volunteers associated with the organization
 
-    public Organization(String name, String email, String password, String organizationName, String mission, String location, List<String> volunteerOpportunities, List<Volunteer> volunteers) {
+
+    public Organization(String name, String email, String password,  String mission, String location, List<VolunteerOpportunities> volunteerOpportunities, List<Volunteer> volunteers) {
         super(name, email, password);
-        this.organizationName = organizationName;
         this.mission = mission;
         this.location = location;
-        this.volunteerOpportunities = volunteerOpportunities;
+        this.volunteerOpportunities = (volunteerOpportunities != null) ? volunteerOpportunities : new ArrayList<>(); // Initialize if null
         this.volunteers = (volunteers != null) ? volunteers : new ArrayList<>(); // Initialize if null
     }
 
-    public String getOrganizationName() {
-        return organizationName;
-    }
-
-    public void setOrganizationName(String organizationName) {
-        this.organizationName = organizationName;
-    }
 
     public String getMission() {
         return mission;
@@ -47,11 +38,11 @@ public class Organization extends User implements CreateProfile, EditProfile, Vi
         this.location = location;
     }
 
-    public List<String> getVolunteerOpportunities() {
+    public List<VolunteerOpportunities> getVolunteerOpportunities() {
         return volunteerOpportunities;
     }
 
-    public void setVolunteerOpportunities(List<String> volunteerOpportunities) {
+    public void setVolunteerOpportunities(List<VolunteerOpportunities> volunteerOpportunities) {
         this.volunteerOpportunities = volunteerOpportunities;
     }
 
@@ -75,7 +66,6 @@ public class Organization extends User implements CreateProfile, EditProfile, Vi
         System.out.println("What would you like to edit?");
         System.out.println("1. Mission");
         System.out.println("2. Location");
-        System.out.println("3. Volunteer opportunities");
 
         int choice = scanner.nextInt();
         scanner.nextLine(); // Consume newline character after reading integer
@@ -90,11 +80,6 @@ public class Organization extends User implements CreateProfile, EditProfile, Vi
                 System.out.println("Enter new Location");
                 String newLocation = scanner.nextLine();
                 setLocation(newLocation);
-                break;
-            case 3:
-                System.out.println("Enter new volunteer opportunities (comma-separated): ");
-                List<String> newVolunteerOpportunities = Arrays.asList(scanner.nextLine().split("\\s*,\\s*"));
-                setVolunteerOpportunities(newVolunteerOpportunities);
                 break;
         }
         System.out.println("Profile updated successfully.");
