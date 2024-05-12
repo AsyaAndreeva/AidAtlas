@@ -1,11 +1,12 @@
 package AidAtlas;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Volunteer extends User implements CreateProfile, EditProfile, ViewProfile {
+    static final Set<String> PredefinedSkills = new HashSet<>(Arrays.asList(
+            "Programming", "Teaching", "Writing", "Design", "Marketing", "Research", "Cooking", "Driving"));
+
     private List<String> skills;
     private BigDecimal availableHoursWeekly;
     private BigDecimal totalVolunteeredHours;
@@ -70,9 +71,7 @@ public class Volunteer extends User implements CreateProfile, EditProfile, ViewP
 
         switch (choice) {
             case 1:
-                System.out.println("Enter new skills (comma-separated): ");
-                List<String> newSkills = Arrays.asList(scanner.nextLine().split("\\s*,\\s*"));
-                setSkills(newSkills);
+                editSkills();
                 break;
             case 2:
                 System.out.println("Enter new available hours weekly: ");
@@ -84,6 +83,28 @@ public class Volunteer extends User implements CreateProfile, EditProfile, ViewP
                 break;
         }
         System.out.println("Profile updated successfully.");
+    }
+
+    private void editSkills() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Choose from the following skills:");
+        int index = 1;
+        for (String skill : PredefinedSkills) {
+            System.out.println(index + ". " + skill);
+            index++;
+        }
+        System.out.println("Enter the numbers corresponding to the skills you want (comma-separated): ");
+        String[] selectedSkillsIndices = scanner.nextLine().split("\\s*,\\s*");
+        List<String> newSkills = new ArrayList<>();
+        for (String indexStr : selectedSkillsIndices) {
+            int selectedIndex = Integer.parseInt(indexStr);
+            if (selectedIndex >= 1 && selectedIndex <= PredefinedSkills.size()) {
+                newSkills.add((String) PredefinedSkills.toArray()[selectedIndex - 1]);
+            } else {
+                System.out.println("Invalid skill index: " + selectedIndex);
+            }
+        }
+        setSkills(newSkills);
     }
 
     @Override

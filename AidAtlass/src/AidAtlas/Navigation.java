@@ -3,6 +3,7 @@ package AidAtlas;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Navigation {
     private AidAtlasApp app;
@@ -98,7 +99,8 @@ public class Navigation {
         String password = inputHandler.getStringInput("Password");
         String location = inputHandler.getStringInput("location");
         // Get skills, interests, and preferred types of work
-        List<String> skills = inputHandler.getListInput("Skills");
+        // Choose skills from predefined list
+        List<String> skills = chooseSkills();
 
         // Get available hours weekly and total volunteered hours
         BigDecimal availableHoursWeekly = inputHandler.getBigDecimalInput("Available Hours Weekly");
@@ -162,6 +164,34 @@ public class Navigation {
         System.out.println("Volunteer added successfully!");
     }
 
+    private List<String> chooseSkills() {
+        Scanner scanner = new Scanner(System.in);
+        List<String> selectedSkills = new ArrayList<>();
+
+        System.out.println("Choose skills from the following list:");
+        int index = 1;
+        for (String skill : Volunteer.PredefinedSkills) {
+            System.out.println(index + ". " + skill);
+            index++;
+        }
+
+        System.out.println("Enter the numbers corresponding to the skills you want (comma-separated): ");
+        String[] selectedSkillsIndices = scanner.nextLine().split("\\s*,\\s*");
+
+        for (String indexStr : selectedSkillsIndices) {
+            int selectedIndex = Integer.parseInt(indexStr);
+            if (selectedIndex >= 1 && selectedIndex <= Volunteer.PredefinedSkills.size()) {
+                selectedSkills.add((String) Volunteer.PredefinedSkills.toArray()[selectedIndex - 1]);
+            } else {
+                System.out.println("Invalid skill index: " + selectedIndex);
+            }
+        }
+
+        return selectedSkills;
+    }
+
+
+
     private void matchVolunteersToOrganizations() {
         List<Volunteer> volunteers = app.getVolunteers();
         List<VolunteerOpportunities> opportunities = new ArrayList<>();
@@ -182,6 +212,7 @@ public class Navigation {
         }
 
         matchingEngine.printMatches(volunteers, opportunities);
+
     }
 
 }
