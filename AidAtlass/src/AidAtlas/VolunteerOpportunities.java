@@ -3,14 +3,14 @@ package AidAtlas;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class VolunteerOpportunities {
+public class VolunteerOpportunities implements ChooseSkills {
     private String oppurtunityName;
 
     private String location;
     private Organization organization;
     private List<String> requiredSkills;
     private BigDecimal requiredWeeklyHours;
-    private int requiredNumberOfVolunteers;
+    private static int requiredNumberOfVolunteers;
 
     public VolunteerOpportunities(String oppurtunityName, String location, Organization organization, List<String> requiredSkills, BigDecimal requiredWeeklyHours, int requiredNumberOfVolunteers) {
         this.oppurtunityName = oppurtunityName;
@@ -18,7 +18,7 @@ public class VolunteerOpportunities {
         this.organization = organization;
         this.requiredSkills = requiredSkills;
         this.requiredWeeklyHours = requiredWeeklyHours;
-        this.requiredNumberOfVolunteers = requiredNumberOfVolunteers;
+        VolunteerOpportunities.requiredNumberOfVolunteers = requiredNumberOfVolunteers;
     }
 
     public String getLocation() {
@@ -61,11 +61,11 @@ public class VolunteerOpportunities {
         this.requiredWeeklyHours = requiredWeeklyHours;
     }
 
-    public int getRequiredNumberOfVolunteers() {
+    public static int getRequiredNumberOfVolunteers() {
         return requiredNumberOfVolunteers;
     }
 
     public void setRequiredNumberOfVolunteers(int requiredNumberOfVolunteers) {
-        this.requiredNumberOfVolunteers = requiredNumberOfVolunteers;
+        VolunteerOpportunities.requiredNumberOfVolunteers = requiredNumberOfVolunteers;
     }
 }

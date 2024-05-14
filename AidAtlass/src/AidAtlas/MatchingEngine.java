@@ -1,20 +1,17 @@
 package AidAtlas;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MatchingEngine {
 
-    public Map<VolunteerOpportunities, List<MatchedVolunteer>> findMatches(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
-        System.out.println("\nMatching volunteers to opportunities:");
+    private static Map<Volunteer, List<MatchedOpportunity>> volunteerMatches = new HashMap<>();
+    private static Map<VolunteerOpportunities, List<MatchedVolunteer>> opportunityMatches = new HashMap<>();
 
+    public Map<VolunteerOpportunities, List<MatchedVolunteer>> findMatchesForOpportunities(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
         Map<VolunteerOpportunities, List<MatchedVolunteer>> matchedOpportunities = new HashMap<>();
 
         for (VolunteerOpportunities opportunity : opportunities) {
-            System.out.println("\nMatching for opportunity: " + opportunity.getOppurtunityName());
             List<MatchedVolunteer> matchedVolunteers = new ArrayList<>();
 
             for (Volunteer volunteer : volunteers) {
@@ -24,25 +21,88 @@ public class MatchingEngine {
 
             matchedVolunteers.sort((v1, v2) -> Integer.compare(v2.getScore(), v1.getScore())); // Sort by score descending
 
-            int neededVolunteers = opportunity.getRequiredNumberOfVolunteers();
+            int neededVolunteers = VolunteerOpportunities.getRequiredNumberOfVolunteers();
             int volunteersMatched = Math.min(neededVolunteers, matchedVolunteers.size());
 
             List<MatchedVolunteer> selectedVolunteers = matchedVolunteers.subList(0, volunteersMatched);
+            opportunityMatches.put(opportunity, selectedVolunteers);
             matchedOpportunities.put(opportunity, selectedVolunteers);
 
             for (MatchedVolunteer matchedVolunteer : selectedVolunteers) {
-                System.out.println("- Volunteer: " + matchedVolunteer.getVolunteer().getName() +
-                        ", Score: " + matchedVolunteer.getScore() +
-                        ", Matching Parameters: " + getMatchingParameters(matchedVolunteer.getVolunteer(), opportunity));
-            }
-
-            if (volunteersMatched < neededVolunteers) {
-                int moreNeeded = neededVolunteers - volunteersMatched;
-                System.out.println("- " + moreNeeded + " more volunteer(s) needed for " + opportunity.getOppurtunityName());
+                volunteerMatches.computeIfAbsent(matchedVolunteer.getVolunteer(), k -> new ArrayList<>()).add(new MatchedOpportunity(opportunity, matchedVolunteer));
             }
         }
 
         return matchedOpportunities;
+    }
+
+
+    public Map<Volunteer, List<MatchedOpportunity>> findMatchesForVolunteers(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
+        findMatchesForOpportunities(volunteers, opportunities); // This ensures both maps are populated
+
+        return volunteerMatches;
+    }
+
+    public void printMatches(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
+        Map<VolunteerOpportunities, List<MatchedVolunteer>> matchedOpportunities = findMatchesForOpportunities(volunteers, opportunities);
+
+        // Print matched volunteers under each opportunity
+        for (VolunteerOpportunities opportunity : matchedOpportunities.keySet()) {
+            System.out.println("\nMatching opportunities for " + opportunity.getOppurtunityName() + ":");
+
+            List<MatchedVolunteer> matchedVolunteers = matchedOpportunities.get(opportunity);
+            for (MatchedVolunteer matchedVolunteer : matchedVolunteers) {
+                System.out.println("- Volunteer: " + matchedVolunteer.getVolunteer().getName() +
+                        ", Score: " + matchedVolunteer.getScore() +
+                        ", Matching Parameters: " + getMatchingParameters(matchedVolunteer.getVolunteer(), opportunity));
+            }
+        }
+    }
+
+    static String getMatchingParametersForOrganization(Organization organization, VolunteerOpportunities opportunity) {
+        StringBuilder matchingParameters = new StringBuilder();
+
+        // No skills matching for organizations
+
+        BigDecimal opportunityHours = opportunity.getRequiredWeeklyHours();
+        matchingParameters.append("Required Hours: ").append(opportunityHours);
+
+        if (organization.getLocation().equals(opportunity.getOrganization().getLocation())) {
+            matchingParameters.append(", Location: ").append(organization.getLocation());
+        }
+
+        return matchingParameters.toString();
+    }
+
+
+    public static List<MatchedOpportunity> getMatchedOpportunitiesForVolunteer(Volunteer volunteer) {
+        return volunteerMatches.getOrDefault(volunteer, Collections.emptyList());
+    }
+
+    public static List<MatchedVolunteer> getMatchedVolunteersForOpportunity(VolunteerOpportunities opportunity) {
+        return opportunityMatches.getOrDefault(opportunity, Collections.emptyList());
+    }
+
+    public static void printMatchedOpportunitiesForVolunteer(Volunteer volunteer) {
+        List<MatchedOpportunity> matchedOpportunities = getMatchedOpportunitiesForVolunteer(volunteer);
+
+        // Sort matched opportunities by score in descending order
+        matchedOpportunities.sort((o1, o2) -> Integer.compare(o2.getScore(), o1.getScore()));
+
+        System.out.println("Matched opportunities for " + volunteer.getName() + ":");
+        for (MatchedOpportunity matchedOpportunity : matchedOpportunities) {
+            VolunteerOpportunities opportunity = matchedOpportunity.getOpportunity();
+            MatchedVolunteer matchedVolunteer = matchedOpportunity.getMatchedVolunteer();
+            System.out.println("- Opportunity: " + opportunity.getOppurtunityName() +
+                    ", Score: " + matchedVolunteer.getScore() +
+                    ", Matching Parameters: " + getMatchingParameters(volunteer, opportunity));
+        }
+    }
+
+
+
+    public Map<VolunteerOpportunities, List<MatchedVolunteer>> findMatches(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
+        return findMatchesForOpportunities(volunteers, opportunities);
     }
 
     public int calculateMatchingScore(Volunteer volunteer, VolunteerOpportunities opportunity) {
@@ -73,35 +133,7 @@ public class MatchingEngine {
         return score;
     }
 
-    public void printMatches(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
-        Map<VolunteerOpportunities, List<MatchedVolunteer>> matchedOpportunities = findMatches(volunteers, opportunities);
-
-        // Print matched volunteers under each opportunity
-        for (VolunteerOpportunities opportunity : matchedOpportunities.keySet()) {
-            System.out.println("\nMatching opportunities for " + opportunity.getOppurtunityName() + ":");
-
-            List<MatchedVolunteer> matchedVolunteers = matchedOpportunities.get(opportunity);
-            for (MatchedVolunteer matchedVolunteer : matchedVolunteers) {
-                System.out.println("- Volunteer: " + matchedVolunteer.getVolunteer().getName() +
-                        ", Score: " + matchedVolunteer.getScore() +
-                        ", Matching Parameters: " + getMatchingParameters(matchedVolunteer.getVolunteer(), opportunity));
-            }
-        }
-
-        // Print summary of remaining needed volunteers
-        for (VolunteerOpportunities opportunity : matchedOpportunities.keySet()) {
-            int neededVolunteers = opportunity.getRequiredNumberOfVolunteers();
-            List<MatchedVolunteer> matchedVolunteers = matchedOpportunities.get(opportunity);
-            int volunteersMatched = matchedVolunteers.size();
-
-            if (volunteersMatched < neededVolunteers) {
-                int moreNeeded = neededVolunteers - volunteersMatched;
-                System.out.println("- " + moreNeeded + " more volunteer(s) needed for " + opportunity.getOppurtunityName());
-            }
-        }
-    }
-
-    private String getMatchingParameters(Volunteer volunteer, VolunteerOpportunities opportunity) {
+    static String getMatchingParameters(Volunteer volunteer, VolunteerOpportunities opportunity) {
         StringBuilder matchingParameters = new StringBuilder();
 
         List<String> volunteerSkills = volunteer.getSkills();
@@ -127,4 +159,7 @@ public class MatchingEngine {
 
         return matchingParameters.toString();
     }
+
+
 }
+
