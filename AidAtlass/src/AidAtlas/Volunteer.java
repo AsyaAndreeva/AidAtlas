@@ -3,17 +3,14 @@ package AidAtlas;
 import java.math.BigDecimal;
 import java.util.*;
 
-public class Volunteer extends User implements CreateProfile, EditProfile, ViewProfile {
-    static final Set<String> PredefinedSkills = new HashSet<>(Arrays.asList(
-            "Programming", "Teaching", "Writing", "Design", "Marketing", "Research", "Cooking", "Driving"));
-
+public class Volunteer extends User implements CreateProfile, EditProfile, ViewProfile, ChooseSkills {
     private List<String> skills;
     private BigDecimal availableHoursWeekly;
     private BigDecimal totalVolunteeredHours;
     private String location;
 
     public Volunteer(String name, String email, String password, List<String> skills, BigDecimal availableHoursWeekly, BigDecimal totalVolunteeredHours, String location) {
-        super(name, email, password);
+        super(name, email, password, UserRole.VOLUNTEER);
         this.skills = skills;
         this.availableHoursWeekly = availableHoursWeekly;
         this.totalVolunteeredHours = totalVolunteeredHours;
@@ -71,7 +68,7 @@ public class Volunteer extends User implements CreateProfile, EditProfile, ViewP
 
         switch (choice) {
             case 1:
-                editSkills();
+                skills = chooseSkills(); // Utilize chooseSkills method
                 break;
             case 2:
                 System.out.println("Enter new available hours weekly: ");
@@ -83,28 +80,6 @@ public class Volunteer extends User implements CreateProfile, EditProfile, ViewP
                 break;
         }
         System.out.println("Profile updated successfully.");
-    }
-
-    private void editSkills() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Choose from the following skills:");
-        int index = 1;
-        for (String skill : PredefinedSkills) {
-            System.out.println(index + ". " + skill);
-            index++;
-        }
-        System.out.println("Enter the numbers corresponding to the skills you want (comma-separated): ");
-        String[] selectedSkillsIndices = scanner.nextLine().split("\\s*,\\s*");
-        List<String> newSkills = new ArrayList<>();
-        for (String indexStr : selectedSkillsIndices) {
-            int selectedIndex = Integer.parseInt(indexStr);
-            if (selectedIndex >= 1 && selectedIndex <= PredefinedSkills.size()) {
-                newSkills.add((String) PredefinedSkills.toArray()[selectedIndex - 1]);
-            } else {
-                System.out.println("Invalid skill index: " + selectedIndex);
-            }
-        }
-        setSkills(newSkills);
     }
 
     @Override

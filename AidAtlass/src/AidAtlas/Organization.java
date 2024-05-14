@@ -14,7 +14,7 @@ public class Organization extends User implements CreateProfile, EditProfile, Vi
 
 
     public Organization(String name, String email, String password,  String mission, String location, List<VolunteerOpportunities> volunteerOpportunities, List<Volunteer> volunteers) {
-        super(name, email, password);
+        super(name, email, password, UserRole.ORGANIZATION);
         this.mission = mission;
         this.location = location;
         this.volunteerOpportunities = (volunteerOpportunities != null) ? volunteerOpportunities : new ArrayList<>(); // Initialize if null
@@ -87,7 +87,7 @@ public class Organization extends User implements CreateProfile, EditProfile, Vi
 
     @Override
     public void ViewProfile() {
-        System.out.println("Viewing volunteer profile...");
+        System.out.println("Viewing organization profile...");
         ViewProfileDetails();
     }
 
@@ -95,11 +95,20 @@ public class Organization extends User implements CreateProfile, EditProfile, Vi
         System.out.println("Organization name: " + getName());
         System.out.println("Mission: " + getMission());
         System.out.println("Location: " + getLocation());
-        System.out.println("Volunteer opportunities: " + getVolunteerOpportunities());
-        System.out.println("Volunteers: " );
+        System.out.println("Volunteer opportunities: ");
+        for (VolunteerOpportunities opportunity : volunteerOpportunities) {
+            System.out.println("- Opportunity Name: " + opportunity.getOppurtunityName());
+            System.out.println("  Location: " + opportunity.getLocation());
+            System.out.println("  Required Skills: " + opportunity.getRequiredSkills());
+            System.out.println("  Required Weekly Hours: " + opportunity.getRequiredWeeklyHours());
+            System.out.println("  Required Number of Volunteers: " + opportunity.getRequiredNumberOfVolunteers());
+            System.out.println(); // Add a blank line for separation
+        }
+        System.out.println("Volunteers: ");
         for (Volunteer volunteer : volunteers) {
             System.out.println("- " + volunteer.getName());
         }
     }
+
 
 }

@@ -149,7 +149,7 @@ public class Navigation {
                 null  // Assuming you don't assign volunteers when creating an organization
         );
         // Get skills, interests, and preferred types of work
-        List<String> requiredSkills = inputHandler.getListInput("Required skills");
+        List<String> requiredSkills = chooseSkills();
 
         // Get available hours weekly and total volunteered hours
         BigDecimal requiredWeeklyHours = inputHandler.getBigDecimalInput("required Weekly Hours");
