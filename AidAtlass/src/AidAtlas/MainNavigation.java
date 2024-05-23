@@ -1,9 +1,8 @@
 package AidAtlas;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
-
-import static AidAtlas.MatchingEngine.getMatchingParametersForOrganization;
 
 public class MainNavigation {
     private static ProfileManagement profileManagement;
@@ -24,6 +23,7 @@ public class MainNavigation {
 
     public void handleMainMenu() {
         while (true) {
+            clearConsole();
             displayMainMenu();
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
@@ -31,9 +31,11 @@ public class MainNavigation {
 
             switch (choice) {
                 case 1:
+                    clearConsole();
                     MainNavigation.registerUser(scanner, profileManagement);
                     break;
                 case 2:
+                    clearConsole();
                     MainNavigation.loginUser(scanner, profileManagement);
                     break;
                 case 3:
@@ -44,6 +46,13 @@ public class MainNavigation {
             }
         }
     }
+
+    private void clearConsole() {
+        for (int i = 0; i < 50; ++i) System.out.println();
+    }
+
+
+
 
     static void registerUser(Scanner scanner, ProfileManagement profileManagement) {
         System.out.print("Enter your name: ");
@@ -168,7 +177,7 @@ public class MainNavigation {
         System.out.print("Enter opportunity name: ");
         String opportunityName = scanner.nextLine();
         System.out.print("Enter location: ");
-        String location = scanner.nextLine();
+        String opportunityLocation = scanner.nextLine();
         System.out.print("Enter required weekly hours: ");
         BigDecimal requiredWeeklyHours = scanner.nextBigDecimal();
         System.out.print("Enter required number of volunteers: ");
@@ -179,7 +188,7 @@ public class MainNavigation {
         List<String> requiredSkills = chooseSkills();
 
         // Create the opportunity
-        VolunteerOpportunities newOpportunity = new VolunteerOpportunities(opportunityName, location, organization, requiredSkills, requiredWeeklyHours, requiredNumberOfVolunteers);
+        VolunteerOpportunities newOpportunity = new VolunteerOpportunities(opportunityName, opportunityLocation, organization, requiredSkills, requiredWeeklyHours, requiredNumberOfVolunteers);
 
         // Now you can use matchedVolunteers for further processing if needed
         // Add the opportunity to the organization's list
@@ -187,6 +196,7 @@ public class MainNavigation {
 
         System.out.println("Opportunity created successfully.");
     }
+
 
     private static List<String> chooseSkills() {
         Scanner scanner = new Scanner(System.in);
@@ -226,7 +236,6 @@ public class MainNavigation {
             MatchingEngine matchingEngine = new MatchingEngine(); // Create an instance of MatchingEngine
             Map<VolunteerOpportunities, List<MatchedVolunteer>> matches = matchingEngine.findMatchesForOpportunities(Collections.singletonList(volunteer), availableOpportunities);
 
-            // Sort matched opportunities by score in descending order
             List<Map.Entry<VolunteerOpportunities, List<MatchedVolunteer>>> sortedMatches = new ArrayList<>(matches.entrySet());
             sortedMatches.sort((entry1, entry2) -> {
                 int score1 = entry1.getValue().isEmpty() ? 0 : entry1.getValue().get(0).getScore();
@@ -234,7 +243,6 @@ public class MainNavigation {
                 return Integer.compare(score2, score1); // Descending order
             });
 
-            // Print matched opportunities
             for (Map.Entry<VolunteerOpportunities, List<MatchedVolunteer>> entry : sortedMatches) {
                 VolunteerOpportunities opportunity = entry.getKey();
                 List<MatchedVolunteer> matchedVolunteers = entry.getValue();
@@ -248,7 +256,7 @@ public class MainNavigation {
                 System.out.println("\nOpportunity: " + opportunity.getOppurtunityName());
                 System.out.println("From Organization: " + organization.getName());
                 System.out.println("Score: " + (matchedVolunteers.isEmpty() ? "N/A" : matchedVolunteers.get(0).getScore()));
-                System.out.println("Matching Parameters: " + MatchingEngine.getMatchingParameters(volunteer, opportunity));
+                System.out.println("Matching Parameters: \n" + MatchingEngine.getMatchingParameters(volunteer, opportunity));
             }
         } else {
             System.out.println("No opportunities available.");
@@ -266,14 +274,11 @@ public class MainNavigation {
                 System.out.println("\nOpportunity: " + opportunity.getOppurtunityName());
                 System.out.println("Matching Volunteers:");
 
-                // Find matches for the current opportunity
                 Map<VolunteerOpportunities, List<MatchedVolunteer>> matchedVolunteersMap = matchingEngine.findMatchesForOpportunities(volunteers, Collections.singletonList(opportunity));
                 List<MatchedVolunteer> matchedVolunteers = matchedVolunteersMap.getOrDefault(opportunity, new ArrayList<>());
 
-                // Sort matched volunteers by score in descending order
                 matchedVolunteers.sort(Comparator.comparingInt(MatchedVolunteer::getScore).reversed());
 
-                // Print matched volunteers
                 for (Volunteer volunteer : volunteers) {
                     boolean found = false;
                     for (MatchedVolunteer matchedVolunteer : matchedVolunteers) {
@@ -281,31 +286,23 @@ public class MainNavigation {
                             System.out.println("- Volunteer: " + volunteer.getName());
                             System.out.println("  Score: " + matchedVolunteer.getScore());
                             System.out.println("  Matching Parameters:");
-                            System.out.println("    Required Hours: " + opportunity.getRequiredWeeklyHours());
-                            System.out.println("    Location: " + organization.getLocation());
-                            System.out.println("    Matched Skills:");
-                            List<String> volunteerSkills = volunteer.getSkills();
-                            List<String> opportunitySkills = opportunity.getRequiredSkills();
-                            for (String skill : volunteerSkills) {
-                                if (opportunitySkills.contains(skill)) {
-                                    System.out.println("      " + skill);
-                                }
-                            }
+                            System.out.println(MatchingEngine.getMatchingParameters(volunteer, opportunity));
                             found = true;
                             break;
                         }
                     }
                     if (!found) {
                         System.out.println("- Volunteer: " + volunteer.getName());
-                        System.out.println("  Score: 0"); // No match, score is 0
+                        System.out.println("  Score: 0");
                         System.out.println("  Matching Parameters:");
                         System.out.println("    Required Hours: " + opportunity.getRequiredWeeklyHours());
-                        System.out.println("    Location: " + organization.getLocation());
+                        System.out.println("    Available Hours: " + volunteer.getAvailableHoursWeekly());
+                        System.out.println("    Volunteer Location: " + volunteer.getLocation());
+                        System.out.println("    Opportunity Location: " + opportunity.getLocation());
                         System.out.println("    Matched Skills: None");
                     }
                 }
 
-                // Print required number of volunteers
                 int requiredVolunteers = VolunteerOpportunities.getRequiredNumberOfVolunteers();
                 System.out.println("\nRequired number of volunteers: " + requiredVolunteers);
             }
@@ -313,11 +310,6 @@ public class MainNavigation {
             System.out.println("No opportunities available.");
         }
     }
-
-
-
-
-
 
 
 

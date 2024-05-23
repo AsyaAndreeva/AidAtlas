@@ -61,7 +61,9 @@ public class Volunteer extends User implements CreateProfile, EditProfile, ViewP
         Scanner scanner = new Scanner(System.in);
         System.out.println("What would you like to edit?");
         System.out.println("1. Skills");
-        System.out.println("2. Available Hours Weekly");
+        System.out.println("2. Location");
+        System.out.println("3. Available Hours Weekly");
+        System.out.println("4. Total volunteered hours");
 
         int choice = scanner.nextInt();
         scanner.nextLine(); // Consume newline character after reading integer
@@ -71,9 +73,19 @@ public class Volunteer extends User implements CreateProfile, EditProfile, ViewP
                 skills = chooseSkills(); // Utilize chooseSkills method
                 break;
             case 2:
+                System.out.println("Enter new location: ");
+                String newLocation = scanner.nextLine();
+                setLocation(newLocation);
+                break;
+            case 3:
                 System.out.println("Enter new available hours weekly: ");
                 BigDecimal newAvailableHours = new BigDecimal(scanner.nextLine());
                 setAvailableHoursWeekly(newAvailableHours);
+                break;
+            case 4:
+                System.out.println("Enter new total volunteered hours: ");
+                BigDecimal newTotalVolunteeredHours = new BigDecimal(scanner.nextLine());
+                setTotalVolunteeredHours(newTotalVolunteeredHours);
                 break;
             default:
                 System.out.println("Invalid choice");

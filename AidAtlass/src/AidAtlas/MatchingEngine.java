@@ -46,15 +46,15 @@ public class MatchingEngine {
     public void printMatches(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
         Map<VolunteerOpportunities, List<MatchedVolunteer>> matchedOpportunities = findMatchesForOpportunities(volunteers, opportunities);
 
-        // Print matched volunteers under each opportunity
         for (VolunteerOpportunities opportunity : matchedOpportunities.keySet()) {
             System.out.println("\nMatching opportunities for " + opportunity.getOppurtunityName() + ":");
 
             List<MatchedVolunteer> matchedVolunteers = matchedOpportunities.get(opportunity);
             for (MatchedVolunteer matchedVolunteer : matchedVolunteers) {
-                System.out.println("- Volunteer: " + matchedVolunteer.getVolunteer().getName() +
+                Volunteer volunteer = matchedVolunteer.getVolunteer();
+                System.out.println("- Volunteer: " + volunteer.getName() +
                         ", Score: " + matchedVolunteer.getScore() +
-                        ", Matching Parameters: " + getMatchingParameters(matchedVolunteer.getVolunteer(), opportunity));
+                        ", Matching Parameters: " + getMatchingParameters(volunteer, opportunity));
             }
         }
     }
@@ -67,7 +67,7 @@ public class MatchingEngine {
         BigDecimal opportunityHours = opportunity.getRequiredWeeklyHours();
         matchingParameters.append("Required Hours: ").append(opportunityHours);
 
-        if (organization.getLocation().equals(opportunity.getOrganization().getLocation())) {
+        if (organization.getLocation().equals(opportunity.getLocation())) {
             matchingParameters.append(", Location: ").append(organization.getLocation());
         }
 
@@ -126,7 +126,7 @@ public class MatchingEngine {
 
         // Add score based on location (you can adjust this based on specific criteria)
         // For example, if the organization is in the same city as the volunteer, add more score
-        if (volunteer.getLocation().equals(opportunity.getOrganization().getLocation())) {
+        if (volunteer.getLocation().equalsIgnoreCase(opportunity.getLocation())) {
             score += 5;
         }
 
@@ -138,28 +138,41 @@ public class MatchingEngine {
 
         List<String> volunteerSkills = volunteer.getSkills();
         List<String> opportunitySkills = opportunity.getRequiredSkills();
-        matchingParameters.append("Skills: ");
+        matchingParameters.append("    Skills: \n");
         for (String skill : volunteerSkills) {
             if (opportunitySkills.contains(skill)) {
-                matchingParameters.append(skill).append(", ");
+                matchingParameters.append("      \033[32m").append(skill).append("\033[0m\n"); // Green for matched skills
+            } else {
+                matchingParameters.append("      ").append(skill).append(" (Volunteer)\n");
             }
         }
-        if (!matchingParameters.isEmpty()) {
-            matchingParameters.delete(matchingParameters.length() - 2, matchingParameters.length()); // Remove trailing comma and space
+        for (String skill : opportunitySkills) {
+            if (!volunteerSkills.contains(skill)) {
+                matchingParameters.append("      ").append(skill).append(" (Opportunity)\n");
+            }
         }
 
         BigDecimal volunteerHours = volunteer.getAvailableHoursWeekly();
         BigDecimal opportunityHours = opportunity.getRequiredWeeklyHours();
-        matchingParameters.append(", Available Hours: ").append(volunteerHours);
-        matchingParameters.append(", Required Hours: ").append(opportunityHours);
+        matchingParameters.append("    Available Hours: ");
+        if (volunteerHours.compareTo(opportunityHours) >= 0) {
+            matchingParameters.append("\033[32m").append(volunteerHours).append("\033[0m\n");
+            matchingParameters.append("    Required Hours: \033[32m").append(opportunityHours).append("\033[0m\n");
+        } else {
+            matchingParameters.append(volunteerHours).append(" (Volunteer)\n");
+            matchingParameters.append("    Required Hours: ").append(opportunityHours).append(" (Opportunity)\n");
+        }
 
-        if (volunteer.getLocation().equals(opportunity.getOrganization().getLocation())) {
-            matchingParameters.append(", Location: ").append(volunteer.getLocation());
+        if (volunteer.getLocation().equalsIgnoreCase(opportunity.getLocation())) {
+            matchingParameters.append("    Matched Location: \033[32m").append(volunteer.getLocation()).append("\033[0m\n");
+        } else {
+            matchingParameters.append("    Volunteer Location: ").append(volunteer.getLocation()).append("\n");
+            matchingParameters.append("    Opportunity Location: ").append(opportunity.getLocation()).append("\n");
         }
 
         return matchingParameters.toString();
     }
-
-
 }
+
+
 
