@@ -5,8 +5,8 @@ import java.util.*;
 
 public class MatchingEngine {
 
-    private static Map<Volunteer, List<MatchedOpportunity>> volunteerMatches = new HashMap<>();
-    private static Map<VolunteerOpportunities, List<MatchedVolunteer>> opportunityMatches = new HashMap<>();
+    private static final Map<Volunteer, List<MatchedOpportunity>> volunteerMatches = new HashMap<>();
+    private static final Map<VolunteerOpportunities, List<MatchedVolunteer>> opportunityMatches = new HashMap<>();
 
     public Map<VolunteerOpportunities, List<MatchedVolunteer>> findMatchesForOpportunities(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
         Map<VolunteerOpportunities, List<MatchedVolunteer>> matchedOpportunities = new HashMap<>();
@@ -36,6 +36,10 @@ public class MatchingEngine {
         return matchedOpportunities;
     }
 
+    public void clearState() {
+        volunteerMatches.clear();
+        opportunityMatches.clear();
+    }
 
     public Map<Volunteer, List<MatchedOpportunity>> findMatchesForVolunteers(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
         findMatchesForOpportunities(volunteers, opportunities); // This ensures both maps are populated
@@ -45,6 +49,9 @@ public class MatchingEngine {
 
     public void printMatches(List<Volunteer> volunteers, List<VolunteerOpportunities> opportunities) {
         Map<VolunteerOpportunities, List<MatchedVolunteer>> matchedOpportunities = findMatchesForOpportunities(volunteers, opportunities);
+
+        // Clear previous matches
+        clearState();
 
         for (VolunteerOpportunities opportunity : matchedOpportunities.keySet()) {
             System.out.println("\nMatching opportunities for " + opportunity.getOppurtunityName() + ":");
