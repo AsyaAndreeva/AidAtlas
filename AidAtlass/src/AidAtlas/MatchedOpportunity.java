@@ -1,8 +1,8 @@
 package AidAtlas;
 
 public class MatchedOpportunity {
-    private VolunteerOpportunities opportunity;
-    private MatchedVolunteer matchedVolunteer;
+    private final VolunteerOpportunities opportunity;
+    private final MatchedVolunteer matchedVolunteer;
 
     public MatchedOpportunity(VolunteerOpportunities opportunity, MatchedVolunteer matchedVolunteer) {
         this.opportunity = opportunity;

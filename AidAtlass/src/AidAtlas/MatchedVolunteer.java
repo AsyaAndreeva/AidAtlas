@@ -1,8 +1,8 @@
 package AidAtlas;
 
 public class MatchedVolunteer {
-    private Volunteer volunteer;
-    private int score;
+    private final Volunteer volunteer;
+    private final int score;
 
     public MatchedVolunteer(Volunteer volunteer, int score) {
         this.volunteer = volunteer;
