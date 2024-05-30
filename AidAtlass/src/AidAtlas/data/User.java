@@ -1,4 +1,4 @@
-package AidAtlas;
+package AidAtlas.data;
 
 abstract public class User{
 

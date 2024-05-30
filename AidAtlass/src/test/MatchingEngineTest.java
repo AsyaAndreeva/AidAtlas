@@ -5,13 +5,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import AidAtlas.*;
-import org.junit.Assert;
+import AidAtlas.data.MatchedVolunteer;
+import AidAtlas.data.Organization;
+import AidAtlas.data.Volunteer;
+import AidAtlas.data.VolunteerOpportunities;
+import AidAtlas.services.matching.MatchingEngine;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,17 +27,17 @@ public class MatchingEngineTest {
 
         // Creating Volunteers
         volunteers = new ArrayList<>();
-        volunteers.add(new Volunteer("John Doe", "john@example.com", "password", Arrays.asList("Programming", "Teaching"), new BigDecimal("10"), new BigDecimal("100"), "CityA"));
-        volunteers.add(new Volunteer("Jane Smith", "jane@example.com", "password", Arrays.asList("Writing", "Design"), new BigDecimal("5"), new BigDecimal("50"), "CityB"));
-        volunteers.add(new Volunteer("Emily Davis", "emily@example.com", "password", Arrays.asList("Marketing", "Research"), new BigDecimal("8"), new BigDecimal("80"), "CityA"));
+        volunteers.add(new Volunteer("John Doe", "john@example.com", "password", new HashSet<>(Arrays.asList("Programming", "Teaching")), new BigDecimal("10"), new BigDecimal("100"), "CityA"));
+        volunteers.add(new Volunteer("Jane Smith", "jane@example.com", "password", new HashSet<>(Arrays.asList("Writing", "Design")), new BigDecimal("5"), new BigDecimal("50"), "CityB"));
+        volunteers.add(new Volunteer("Emily Davis", "emily@example.com", "password", new HashSet<>(Arrays.asList("Marketing", "Research")), new BigDecimal("8"), new BigDecimal("80"), "CityA"));
 
         // Creating an Organization
         Organization org1 = new Organization("Org1", "org1@example.com", "password", "Helping the community", "CityA", null, null);
 
         // Creating Opportunities
         opportunities = new ArrayList<>();
-        opportunities.add(new VolunteerOpportunities("Opportunity1", "CityA", org1, Arrays.asList("Programming", "Writing"), new BigDecimal("10"), 2));
-        opportunities.add(new VolunteerOpportunities("Opportunity2", "CityB", org1, Arrays.asList("Design", "Teaching"), new BigDecimal("5"), 1));
+        opportunities.add(new VolunteerOpportunities("Opportunity1", "CityA", org1, new HashSet<>(Arrays.asList("Programming", "Writing")), new BigDecimal("10"), 2));
+        opportunities.add(new VolunteerOpportunities("Opportunity2", "CityB", org1, new HashSet<>(Arrays.asList("Design", "Teaching")), new BigDecimal("5"), 1));
     }
 
     @Test
@@ -60,9 +60,9 @@ public class MatchingEngineTest {
 
     @Test
     public void testCalculateMatchingScore() {
-        Volunteer volunteer = new Volunteer("Test Volunteer", "test@example.com", "password", Arrays.asList("Programming", "Writing"), new BigDecimal("10"), new BigDecimal("100"), "CityA");
+        Volunteer volunteer = new Volunteer("Test Volunteer", "test@example.com", "password", new HashSet<>(Arrays.asList("Programming", "Writing")), new BigDecimal("10"), new BigDecimal("100"), "CityA");
         Organization testOrg = new Organization("Test Org", "testorg@example.com", "password", "Community Support", "CityA", null, null);
-        VolunteerOpportunities opportunity = new VolunteerOpportunities("Test Opportunity", "CityA", testOrg, Arrays.asList("Programming", "Writing"), new BigDecimal("10"), 2);
+        VolunteerOpportunities opportunity = new VolunteerOpportunities("Test Opportunity", "CityA", testOrg, new HashSet<>(Arrays.asList("Programming", "Writing")), new BigDecimal("10"), 2);
 
         int score = matchingEngine.calculateMatchingScore(volunteer, opportunity);
         assertEquals(13, score); // 6 for skills, 2 for hours, 5 for location

@@ -1,10 +1,21 @@
-package AidAtlas;
+package AidAtlas.services.navigation;
 
+import AidAtlas.data.*;
+import AidAtlas.fileStorage.FileUserStorage;
+import AidAtlas.services.matching.MatchingEngine;
+import AidAtlas.services.profileManagment.ProfileManagement;
+import AidAtlas.services.profileManagment.ProfileRegistration;
+import AidAtlas.services.profileManagment.RoleSpecificNavigator;
+import AidAtlas.services.skillsManagment.ConsoleSkillChooser;
+
+import javax.swing.*;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
 
 public class MainNavigation {
     private static ProfileManagement profileManagement;
+
     private final Scanner scanner;
 
     public MainNavigation(ProfileManagement profileManagement, Scanner scanner) {
@@ -24,7 +35,7 @@ public class MainNavigation {
             try {
                 displayMainMenu();
                 System.out.print("Choose an option: ");
-                int choice = Integer.parseInt(scanner.nextLine().trim()); // Use nextLine() to avoid input issues
+                int choice = Integer.parseInt(scanner.nextLine().trim());
 
                 switch (choice) {
                     case 1:
@@ -64,7 +75,7 @@ public class MainNavigation {
             User user = profileManagement.login(email, password);
             if (user != null) {
                 System.out.println("Login successful!");
-                ProfileRegistration.navigateToRoleSpecificMenu(scanner, profileManagement, user, user.getRole());
+                RoleSpecificNavigator.navigateToRoleSpecificMenu(scanner, profileManagement, user, user.getRole());
             } else {
                 System.out.println("Invalid email or password.");
             }
@@ -87,11 +98,12 @@ public class MainNavigation {
             System.out.print("Enter required number of volunteers: ");
             int requiredNumberOfVolunteers = Integer.parseInt(scanner.nextLine().trim());
 
-            // Choose skills required for the opportunity
-            List<String> requiredSkills = chooseSkills(scanner);
+            // Choose skills required for the opportunity using ConsoleSkillChooser
+            ConsoleSkillChooser skillChooser = new ConsoleSkillChooser();
+            List<String> requiredSkills = skillChooser.chooseSkills();
 
             // Create the opportunity
-            VolunteerOpportunities newOpportunity = new VolunteerOpportunities(opportunityName, opportunityLocation, organization, requiredSkills, requiredWeeklyHours, requiredNumberOfVolunteers);
+            VolunteerOpportunities newOpportunity = new VolunteerOpportunities(opportunityName, opportunityLocation, organization, new HashSet<>(requiredSkills), requiredWeeklyHours, requiredNumberOfVolunteers);
 
             // Add the opportunity to the organization's list
             organization.getVolunteerOpportunities().add(newOpportunity);
@@ -102,37 +114,6 @@ public class MainNavigation {
         } catch (Exception e) {
             System.out.println("An error occurred while creating the opportunity: " + e.getMessage());
         }
-    }
-
-    private static List<String> chooseSkills(Scanner scanner) {
-        List<String> selectedSkills = new ArrayList<>();
-
-        try {
-            System.out.println("Choose skills from the following list:");
-            int index = 1;
-            for (String skill : Volunteer.PredefinedSkills) {
-                System.out.println(index + ". " + skill);
-                index++;
-            }
-
-            System.out.println("Enter the numbers corresponding to the skills you want (comma-separated): ");
-            String[] selectedSkillsIndices = scanner.nextLine().split("\\s*,\\s*");
-
-            for (String indexStr : selectedSkillsIndices) {
-                int selectedIndex = Integer.parseInt(indexStr);
-                if (selectedIndex >= 1 && selectedIndex <= Volunteer.PredefinedSkills.size()) {
-                    selectedSkills.add((String) Volunteer.PredefinedSkills.toArray()[selectedIndex - 1]);
-                } else {
-                    System.out.println("Invalid skill index: " + selectedIndex);
-                }
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input! Please enter valid skill numbers.");
-        } catch (Exception e) {
-            System.out.println("An error occurred while choosing skills: " + e.getMessage());
-        }
-
-        return selectedSkills;
     }
 
     static void viewOpportunitiesForLoggedVolunteer(Volunteer volunteer, ProfileManagement profileManagement) {
@@ -164,7 +145,7 @@ public class MainNavigation {
                             break;
                         }
                     }
-                    System.out.println("\nOpportunity: " + opportunity.getOppurtunityName());
+                    System.out.println("\nOpportunity: " + opportunity.getOpportunityName());
                     assert organization != null;
                     System.out.println("From Organization: " + organization.getName());
                     System.out.println("Score: " + (matchedVolunteers.isEmpty() ? "N/A" : matchedVolunteers.get(0).getScore()));
@@ -187,7 +168,7 @@ public class MainNavigation {
                 MatchingEngine matchingEngine = new MatchingEngine();
 
                 for (VolunteerOpportunities opportunity : availableOpportunities) {
-                    System.out.println("\nOpportunity: " + opportunity.getOppurtunityName());
+                    System.out.println("\nOpportunity: " + opportunity.getOpportunityName());
                     System.out.println("Matching Volunteers:");
 
                     Map<VolunteerOpportunities, List<MatchedVolunteer>> matchedVolunteersMap = matchingEngine.findMatchesForOpportunities(volunteers, Collections.singletonList(opportunity));

@@ -1,9 +1,16 @@
-package AidAtlas;
+package AidAtlas.services.navigation;
+
+import AidAtlas.data.Organization;
+import AidAtlas.services.navigation.MainNavigation;
+import AidAtlas.services.organizationManagment.OrganizationProfileService;
+import AidAtlas.services.profileManagment.ProfileManagement;
 
 import java.util.Scanner;
 
 public interface ShowOrganizationMenu {
     static void showOrganizationMenu(Scanner scanner, Organization organization, ProfileManagement profileManagement) {
+        OrganizationProfileService organizationProfileService = new OrganizationProfileService(scanner);
+
         while (true) {
             System.out.println("\nOrganization Menu");
             System.out.println("1. View Profile");
@@ -17,10 +24,10 @@ public interface ShowOrganizationMenu {
 
             switch (choice) {
                 case 1:
-                    organization.ViewProfile();
+                    organizationProfileService.viewProfileOrganization(organization);
                     break;
                 case 2:
-                    organization.editProfile();
+                    organizationProfileService.editProfileOrganization(organization);
                     break;
                 case 3:
                     MainNavigation.createOpportunity(scanner, organization, profileManagement);

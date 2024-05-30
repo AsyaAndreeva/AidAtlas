@@ -1,19 +1,21 @@
-package AidAtlas;
+package AidAtlas.data;
+
+import AidAtlas.services.skillsManagment.ChooseSkills;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 public class VolunteerOpportunities implements ChooseSkills {
-    private String oppurtunityName;
-
+    private String opportunityName;
     private String location;
     private Organization organization;
-    private List<String> requiredSkills;
+    private Set<String> requiredSkills;
     private BigDecimal requiredWeeklyHours;
     private static int requiredNumberOfVolunteers;
 
-    public VolunteerOpportunities(String oppurtunityName, String location, Organization organization, List<String> requiredSkills, BigDecimal requiredWeeklyHours, int requiredNumberOfVolunteers) {
-        this.oppurtunityName = oppurtunityName;
+    public VolunteerOpportunities(String opportunityName, String location, Organization organization, Set<String> requiredSkills, BigDecimal requiredWeeklyHours, int requiredNumberOfVolunteers) {
+        this.opportunityName = opportunityName;
         this.location = location;
         this.organization = organization;
         this.requiredSkills = requiredSkills;
@@ -29,12 +31,12 @@ public class VolunteerOpportunities implements ChooseSkills {
         this.location = location;
     }
 
-    public String getOppurtunityName() {
-        return oppurtunityName;
+    public String getOpportunityName() {
+        return opportunityName;
     }
 
-    public void setOppurtunityName(String oppurtunityName) {
-        this.oppurtunityName = oppurtunityName;
+    public void setOpportunityName(String opportunityName) {
+        this.opportunityName = opportunityName;
     }
 
     public Organization getOrganization() {
@@ -45,11 +47,11 @@ public class VolunteerOpportunities implements ChooseSkills {
         this.organization = organization;
     }
 
-    public List<String> getRequiredSkills() {
+    public Set<String> getRequiredSkills() {
         return requiredSkills;
     }
 
-    public void setRequiredSkills(List<String> requiredSkills) {
+    public void setRequiredSkills(Set<String> requiredSkills) {
         this.requiredSkills = requiredSkills;
     }
 
@@ -67,5 +69,10 @@ public class VolunteerOpportunities implements ChooseSkills {
 
     public void setRequiredNumberOfVolunteers(int requiredNumberOfVolunteers) {
         VolunteerOpportunities.requiredNumberOfVolunteers = requiredNumberOfVolunteers;
+    }
+
+    @Override
+    public List<String> chooseSkills() {
+        return null;
     }
 }
