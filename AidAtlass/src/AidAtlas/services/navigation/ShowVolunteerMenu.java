@@ -1,12 +1,17 @@
-package AidAtlas;
+package AidAtlas.services.navigation;
+
+import AidAtlas.data.Volunteer;
+import AidAtlas.services.profileManagment.ProfileManagement;
+import AidAtlas.services.volunteerManagment.VolunteerProfileService;
 
 import java.util.Scanner;
 
-import static AidAtlas.MainNavigation.viewOpportunitiesForLoggedVolunteer;
+import static AidAtlas.services.matching.MatchingEngine.printMatchedOpportunitiesForVolunteer;
 
 public interface ShowVolunteerMenu {
     // Corrected method name to follow Java conventions
     static void showVolunteerMenu(Scanner scanner, Volunteer volunteer, ProfileManagement profileManagement) {
+        VolunteerProfileService volunteerProfileService = new VolunteerProfileService(scanner); // Creating an instance
         while (true) {
             System.out.println("\nVolunteer Menu");
             System.out.println("1. View Profile");
@@ -19,13 +24,13 @@ public interface ShowVolunteerMenu {
 
             switch (choice) {
                 case 1:
-                    volunteer.ViewProfile(); // Corrected method name to match Volunteer method
+                    volunteerProfileService.viewProfileVolunteer(volunteer); // Calling non-static method on the instance
                     break;
                 case 2:
-                    volunteer.editProfile(); // Corrected method name to match Volunteer method
+                    volunteerProfileService.editProfileVolunteer(volunteer); // Corrected method name to match Volunteer method
                     break;
                 case 3:
-                    viewOpportunitiesForLoggedVolunteer(volunteer, profileManagement);
+                    printMatchedOpportunitiesForVolunteer(volunteer, profileManagement);
                     break;
                 case 4:
                     System.out.println("Logging out...");

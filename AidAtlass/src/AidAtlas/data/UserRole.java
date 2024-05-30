@@ -1,4 +1,4 @@
-package AidAtlas;
+package AidAtlas.data;
 
 public enum UserRole {
     VOLUNTEER,

@@ -1,4 +1,4 @@
-package AidAtlas;
+package AidAtlas.data;
 
 public class MatchedOpportunity {
     private final VolunteerOpportunities opportunity;

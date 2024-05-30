@@ -1,4 +1,11 @@
-package AidAtlas;
+package AidAtlas.services.matching;
+
+import AidAtlas.data.Organization;
+import AidAtlas.data.Volunteer;
+import AidAtlas.data.VolunteerOpportunities;
+import AidAtlas.data.MatchedOpportunity;
+import AidAtlas.data.MatchedVolunteer;
+import AidAtlas.services.profileManagment.ProfileManagement;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -54,7 +61,7 @@ public class MatchingEngine {
         clearState();
 
         for (VolunteerOpportunities opportunity : matchedOpportunities.keySet()) {
-            System.out.println("\nMatching opportunities for " + opportunity.getOppurtunityName() + ":");
+            System.out.println("\nMatching opportunities for " + opportunity.getOpportunityName() + ":");
 
             List<MatchedVolunteer> matchedVolunteers = matchedOpportunities.get(opportunity);
             for (MatchedVolunteer matchedVolunteer : matchedVolunteers) {
@@ -90,7 +97,7 @@ public class MatchingEngine {
         return opportunityMatches.getOrDefault(opportunity, Collections.emptyList());
     }
 
-    public static void printMatchedOpportunitiesForVolunteer(Volunteer volunteer) {
+    public static void printMatchedOpportunitiesForVolunteer(Volunteer volunteer, ProfileManagement profileManagement) {
         List<MatchedOpportunity> matchedOpportunities = getMatchedOpportunitiesForVolunteer(volunteer);
 
         // Sort matched opportunities by score in descending order
@@ -100,7 +107,7 @@ public class MatchingEngine {
         for (MatchedOpportunity matchedOpportunity : matchedOpportunities) {
             VolunteerOpportunities opportunity = matchedOpportunity.getOpportunity();
             MatchedVolunteer matchedVolunteer = matchedOpportunity.getMatchedVolunteer();
-            System.out.println("- Opportunity: " + opportunity.getOppurtunityName() +
+            System.out.println("- Opportunity: " + opportunity.getOpportunityName() +
                     ", Score: " + matchedVolunteer.getScore() +
                     ", Matching Parameters: " + getMatchingParameters(volunteer, opportunity));
         }
@@ -116,8 +123,8 @@ public class MatchingEngine {
         int score = 0;
 
         // Calculate score based on shared skills
-        List<String> volunteerSkills = volunteer.getSkills();
-        List<String> opportunitySkills = opportunity.getRequiredSkills();
+        Set<String> volunteerSkills = volunteer.getSkills();
+        Set<String> opportunitySkills = opportunity.getRequiredSkills();
         for (String skill : volunteerSkills) {
             if (opportunitySkills.contains(skill)) {
                 score += 3; // Higher weight for skills
@@ -140,11 +147,11 @@ public class MatchingEngine {
         return score;
     }
 
-    static String getMatchingParameters(Volunteer volunteer, VolunteerOpportunities opportunity) {
+    public static String getMatchingParameters(Volunteer volunteer, VolunteerOpportunities opportunity) {
         StringBuilder matchingParameters = new StringBuilder();
 
-        List<String> volunteerSkills = volunteer.getSkills();
-        List<String> opportunitySkills = opportunity.getRequiredSkills();
+        Set<String> volunteerSkills = volunteer.getSkills();
+        Set<String> opportunitySkills = opportunity.getRequiredSkills();
         matchingParameters.append("    Skills: \n");
         for (String skill : volunteerSkills) {
             if (opportunitySkills.contains(skill)) {
