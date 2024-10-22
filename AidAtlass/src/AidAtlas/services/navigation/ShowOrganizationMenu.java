@@ -1,16 +1,25 @@
 package AidAtlas.services.navigation;
 
 import AidAtlas.data.Organization;
-import AidAtlas.services.navigation.MainNavigation;
+import AidAtlas.services.matching.MatchingEngine;
+import AidAtlas.services.opportunityManagment.OpportunityCreator;
+import AidAtlas.services.opportunityManagment.OpportunityFetcher;
 import AidAtlas.services.organizationManagment.OrganizationProfileService;
 import AidAtlas.services.profileManagment.ProfileManagement;
+import AidAtlas.services.volunteerViewerManagment.VolunteerFetcher;
+import AidAtlas.services.volunteerViewerManagment.VolunteerSorter;
+import AidAtlas.services.volunteerViewerManagment.VolunteerViewer;
 
 import java.util.Scanner;
 
 public interface ShowOrganizationMenu {
     static void showOrganizationMenu(Scanner scanner, Organization organization, ProfileManagement profileManagement) {
         OrganizationProfileService organizationProfileService = new OrganizationProfileService(scanner);
-
+        MatchingEngine matchingEngine = new MatchingEngine();
+        VolunteerFetcher volunteerFetcher = new VolunteerFetcher(profileManagement);
+        OpportunityFetcher opportunityFetcher = new OpportunityFetcher(profileManagement);
+        VolunteerSorter volunteerSorter = new VolunteerSorter();
+        VolunteerViewer volunteerViewer = new VolunteerViewer(matchingEngine, volunteerFetcher, opportunityFetcher, volunteerSorter);
         while (true) {
             System.out.println("\nOrganization Menu");
             System.out.println("1. View Profile");
@@ -30,10 +39,10 @@ public interface ShowOrganizationMenu {
                     organizationProfileService.editProfileOrganization(organization);
                     break;
                 case 3:
-                    MainNavigation.createOpportunity(scanner, organization, profileManagement);
+                    OpportunityCreator.createOpportunity(scanner, organization, profileManagement);
                     break;
                 case 4:
-                    MainNavigation.viewVolunteersForLoggedOrganization(organization, profileManagement);
+                    volunteerViewer.viewVolunteersForLoggedOrganization(organization);
                     break;
                 case 5:
                     System.out.println("Logging out...");

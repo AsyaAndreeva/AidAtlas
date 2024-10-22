@@ -13,8 +13,16 @@ public class FileUserStorage implements UserStorage {
 
     public FileUserStorage(String fileName) {
         this.fileName = fileName;
+        clearFile();
     }
 
+    private void clearFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false))) {
+            // Overwrite the file with an empty string
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private Set<String> loadUsers() {
         Set<String> users = new HashSet<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -68,4 +76,6 @@ public class FileUserStorage implements UserStorage {
         }
         return null; // User not found
     }
+
+
 }
